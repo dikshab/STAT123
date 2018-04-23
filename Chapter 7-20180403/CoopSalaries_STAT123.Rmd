@@ -1,0 +1,151 @@
+---
+title: "UVic Engin/Math co-op salaries"
+author: "Fan Wu"
+output: pdf_document
+---
+
+Analyze Co-op monthly salaries for UVic Engineering/Math students, undergraduate and graduate students.
+Some salaries were mistakenly entered as weekly salaries and many were not entered 
+and are zero.  Remove the zero salaries.  Assume that salaries <$1000 are weekly salaries and multiply them by four.
+
+Notes from class: 
+
+1. Students working abroad, for example in the U.S.A., may not have converted their
+salaries to Canadian dollars.  
+
+2. Some students may have entered their biweekly/bimonthly salary since many are paid 
+at those times.
+
+##Data preparation and descriptives##
+
+```{r}
+#read in .csv file
+salary<-read.csv('salaryInfo.csv')  
+summary(salary)
+
+#convert to short names
+names(salary)
+names(salary)<-c('Term','WTNum','GR.UG','SalMonthRaw')  
+#remove the zero salaries
+salarynz<-subset(salary, SalMonthRaw!=0)   
+summary(salarynz)
+
+hist(salarynz$SalMonthRaw)
+
+salarynz[salarynz$SalMonthRaw<1000,]
+salarynz$SalMonth<-salarynz$SalMonthRaw
+#assume that salaries <$1000 are weekly
+salarynz$SalMonth[salarynz$SalMonthRaw<1000]<-
+     salarynz$SalMonthRaw[salarynz$SalMonthRaw<1000]*4   
+summary(salarynz)
+
+hist(salarynz$SalMonth)
+summary(salarynz$WTNum)
+#remove the student with unknown workterm
+salarynz[salarynz$WTNum=='N/A',]
+salarynz<-salarynz[salarynz$WTNum!='N/A',]  
+summary(salarynz)
+
+hist(salarynz$SalMonth, main='Monthly Engin/Math Co-op salaries', 
+     xlab='Monthly salary $')
+```
+
+
+
+-------
+
+
+qqnorm(y,main='Normal QQ plot of 10 salaries', ylab='dollars')
+qqline(y)
+
+```
+
+-------------------
+
+
+
+
+```{r}
+
+
+
+#extract out WorkTerm 1 salaries 
+ywt1<-subset(salarynz,salarynz$WTNum=='W-1')
+summary(ywt1)
+ywt1<-ywt1[,-4]
+summary(ywt1)
+ywt1$WTNum<-factor(ywt1$WTNum)
+rownames(ywt1)<-NULL
+summary(ywt1)
+
+#analyze WorkTerm 1 salaries
+dim(ywt1)
+n<-dim(ywt1)[1]
+summary(ywt1$SalMonth)
+
+
+hist(ywt1$SalMonth, main='Work Term 1 Salaries', xlab='Monthly Salaries $')
+
+
+```
+
+-----------------------------
+
+##Analyze Workterm 1 and 2 salaries##
+###Inferences about the differences in the means, $\mu_1 - \mu_2$###
+
+```{r}
+#Create a dataset with only Workterm 1 and 2 data
+ywt12<-subset(salarynz,is.element(salarynz$WTNum,c('W-1','W-2')))
+dim(ywt12)
+n<-dim(ywt12)[1]
+summary(ywt12)
+#Remove the unwanted workterm labels
+ywt12$WTNum<-factor(ywt12$WTNum)
+rownames(ywt12)<-NULL
+summary(ywt12)
+summary(ywt12)
+
+#Graph the data; side-by-side boxplots are one of my favourites
+boxplot(SalMonth~WTNum,data=ywt12, 
+        main='Monthly salaries for Workterms 1, 2')
+```
+
+
+
+###Regression analysis of Salaries versus Work Term number###
+
+
+```{r}
+summary(salarynz)
+summary(salarynz$WTNum)
+#there is an un-used level "N/A" which we need to remove
+salarynz$WTNum<-factor(salarynz$WTNum)
+summary(salarynz$WTNum)
+salarynz$WTNumN<-as.numeric(salarynz$WTNum)
+summary(salarynz$WTNumN)
+
+
+
+
+#Graph the data; side-by-side boxplots are one of my favourites
+
+boxplot(salarynz$SalMonth~salarynz$WTNum, xlab='Work Term Number',ylab='monthly salary',
+     main='Monthly Salary versus Work Term Number')
+
+plot(salarynz$WTNumN, salarynz$SalMonth, xlab='Work Term Number',ylab='monthly salary',
+     main='Monthly Salary versus Work Term Number')
+##############################################################################################
+
+Sal.lm<-lm(SalMonth~WTNumN, data=salarynz)
+summary(Sal.lm)
+
+####################################
+##Check the model 
+
+plot(Sal.lm,which=1:2)
+
+# 1: Residuals VS Fitted values plot: Any any special pattern, we will conclude that the residuals have a constance varaince.
+# 2: Normal Q-Q plot: if all of scatters are roughly on a straight line, we will conclude the residuals follow a normal distribution.  
+```
+

@@ -1,0 +1,75 @@
+<html>
+
+<head>
+<title>Title</title>
+</head>
+
+<body>
+<!--begin.rcode
+install.packages()
+end.rcode-->
+
+
+
+<!--begin.rcode
+X919_data <- read_excel("C:/Users/Diksha Bansal/Documents/GitHub/STAT 123/919report_data.xlsx")
+summary(X919_data)
+
+end.rcode-->
+
+
+
+<!--begin.rcode fig.width=7, fig.height=6
+timing_cat <- c("Dawn", "Morning", "Noon", "Afternoon", "Evening", "Night")
+
+# Dawn -> 12:01 am to 4:00 am      0.00069444444444444 to 0.16666666666666667 
+# Morning -> 4:01 am to 8:00 am    0.16736111111111111 to 0.33333333333333333
+# Noon -> 8:01 am to 12:00 pm      0.33402777777777778 to 0.5
+# Afternoon -> 12:01 pm to 4:00 pm 0.50069444444444444 to 0.66666666666666667
+# Evening -> 4:01 pm to 8:00 pm    0.66736111111111111 to 0.83333333333333333
+# Night -> 8:01 pm to 12:00 am     0.83402777777777778 to 1
+ 
+end.rcode-->
+
+<!--begin.rcode
+time_vector <- X919_data$Time
+len <- length(time_vector)
+char_time <- vector(mode = "character", length = len) # create an empty vector
+
+for(i in 1:len){
+  if(time_vector[i] > 0 && time_vector[i] <= 0.16666666666666667){
+    char_time[i] = "Dawn"
+  } else if(time_vector[i] > 0.16666666666666667 && time_vector[i] <= 0.33333333333333333){
+    char_time[i] = "Morning"
+  } else if(time_vector[i] > 0.33333333333333333 && time_vector[i] <= 0.5){
+    char_time[i] = "Noon"
+  } else if(time_vector[i] > 0.5 && time_vector[i] <= 0.66666666666666667){
+    char_time[i] = "Afternoon"
+  } else if(time_vector[i] > 0.66666666666666667 && time_vector[i] <= 0.83333333333333333){
+    char_time[i] = "Evening"
+  } else{
+    char_time[i] = "Night"
+  }
+}
+
+
+char_time
+end.rcode-->
+
+
+<!--begin.rcode
+
+timing_cat <- c("Dawn", "Morning", "Noon", "Afternoon", "Evening", "Night" )
+factor_time <- factor(char_time, ordered = T, levels = timing_cat)
+ 
+summary(factor_time)
+end.rcode-->
+
+
+<!--begin.rcode
+
+#Most of the incidents happen between noon and 8pm, so no, there are not more incidents happening at the end of the day
+
+end.rcode-->
+</body>
+</html>
